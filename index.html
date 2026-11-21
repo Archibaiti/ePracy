@@ -8150,12 +8150,12 @@ function renderDynamicYearSwitch() {
   const yearSet = new Set(["2026"]);
   if (currentVault && currentVault.years) {
     Object.keys(currentVault.years).forEach((y) => {
-      if (Number(y) >= 2026) yearSet.add(String(y));
+      if (Number(y) >= 2020) yearSet.add(String(y));
     });
   }
   yearSet.add(String(activeYear || 2026));
 
-  const sortedYears = Array.from(yearSet).map(Number).filter((n) => !isNaN(n) && n >= 2026).sort((a, b) => a - b);
+  const sortedYears = Array.from(yearSet).map(Number).filter((n) => !isNaN(n) && n >= 2020).sort((a, b) => a - b);
   wrap.innerHTML = "";
   sortedYears.forEach((yr) => {
     const btn = document.createElement("button");
