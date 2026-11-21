@@ -3305,7 +3305,7 @@ html[data-motion="off"] *::after {
           <div class="panel chart-panel">
             <div class="panel-header">
               <div>
-                <h2 class="panel-title" id="ovChartTitle">Dynamika zarobków i godzin według miesięcy</h2>
+                <h2 class="panel-title" id="ovChartTitle">Dynamika zarobków według miesięcy</h2>
                 <p class="panel-desc" id="ovChartDesc">Kliknij wybrany miesiąc na wykresie, aby przejść do edycji jego dni pracy</p>
               </div>
               <div class="chart-controls-group">
@@ -3315,16 +3315,6 @@ html[data-motion="off"] *::after {
                   </button>
                   <button type="button" class="chart-type-btn" id="btnChartTypeTrend" onclick="setChartType('trend')">
                     <span>📈</span> <span id="lblChartTrend">Linia trendu</span>
-                  </button>
-                </div>
-                <div class="chart-metric-toggles">
-                  <button type="button" class="metric-chip active" id="chipMetricEarned" onclick="toggleChartMetric('earned')" title="Zarobiono (zł)">
-                    <span class="legend-dot accent"></span>
-                    <span id="legendEarned">Zarobiono (zł)</span>
-                  </button>
-                  <button type="button" class="metric-chip active" id="chipMetricHours" onclick="toggleChartMetric('hours')" title="Godziny (h)">
-                    <span class="legend-dot secondary"></span>
-                    <span id="legendHours">Godziny (h)</span>
                   </button>
                 </div>
               </div>
@@ -3670,8 +3660,7 @@ html[data-motion="off"] *::after {
         </div>
       </div>
 
-      <div class="modal-footer" style="flex-wrap: wrap; gap: 8px; justify-content: space-between;">
-        <button type="button" class="btn btn-ghost" onclick="resetDeviceCacheForNewWorkerTest()" id="btnTestNewWorker" title="Czyści pamięć przeglądarki (localStorage) na tym urządzeniu i uruchamia widok pierwszego logowania">🧪 Test nowego pracownika</button>
+      <div class="modal-footer" style="flex-wrap: wrap; gap: 8px; justify-content: flex-end;">
         <div style="display: flex; gap: 8px; margin-left: auto;">
           <button type="button" class="btn btn-ghost" onclick="resetDefaultSettings()" id="btnResetSettings">Przywróć domyślne</button>
           <button type="button" class="btn btn-accent" onclick="closeSettingsModal()" id="btnCloseSettingsDone">Gotowe</button>
@@ -4940,7 +4929,7 @@ const DEFAULT_SETTINGS = {
   highlightHolidays: false,    // Off by default; highlights Polish holidays when user turns it on in Settings
   chartType: "bars",
   chartShowEarned: true,
-  chartShowHours: true,
+  chartShowHours: false,
   monthlyGoalHours: 100,
   monthlyGoalEarnings: 0,
   shiftPresets: [
@@ -5289,7 +5278,7 @@ const I18N = {
     ovKpiShiftsSub: (active) => `Активных месяцев: ${active} из 12`,
     ovKpiRateLabel: "ДЕЙСТВУЮЩАЯ СТАВКА (ДЕКАБРЬ)",
     ovKpiRateSub: "Каскадное наследование по месяцам",
-    ovChartTitle: "Динамика заработка и часов по месяцам (2026)",
+    ovChartTitle: "Динамика заработка по месяцам (2026)",
     ovChartDesc: "Нажмите на столбец любого месяца, чтобы перейти к заполнению его смен",
     legendEarned: "Заработок (zł)",
     legendHours: "Часы (ч)",
@@ -5467,7 +5456,7 @@ const I18N = {
     ovKpiShiftsSub: (active) => `Aktywne miesiące: ${active} z 12`,
     ovKpiRateLabel: "AKTUALNA STAWKA (GRUDZIEŃ)",
     ovKpiRateSub: "Dziedziczenie stawek na kolejne miesiące",
-    ovChartTitle: "Dynamika zarobków i godzin według miesięcy (2026)",
+    ovChartTitle: "Dynamika zarobków według miesięcy (2026)",
     ovChartDesc: "Kliknij wybrany miesiąc na wykresie, aby przejść do edycji jego dni pracy",
     legendEarned: "Zarobiono (zł)",
     legendHours: "Godziny (h)",
@@ -6162,10 +6151,12 @@ function renderOverviewView() {
   animateValue("ovKpiRateVal", lastRate, fmtRateAnim);
   document.getElementById("ovKpiRateSub").textContent = t.ovKpiRateSub;
 
-  document.getElementById("ovChartTitle").textContent = t.ovChartTitle;
+  document.getElementById("ovChartTitle").textContent = (t.ovChartTitle || "").replace("2026", String(activeYear || 2026));
   document.getElementById("ovChartDesc").textContent = t.ovChartDesc;
-  document.getElementById("legendEarned").textContent = t.legendEarned;
-  document.getElementById("legendHours").textContent = t.legendHours;
+  const legEarnedEl = document.getElementById("legendEarned");
+  if (legEarnedEl) legEarnedEl.textContent = t.legendEarned;
+  const legHoursEl = document.getElementById("legendHours");
+  if (legHoursEl) legHoursEl.textContent = t.legendHours;
 
   document.getElementById("ovTableTitle").textContent = t.ovTableTitle;
   document.getElementById("ovTableDesc").textContent = t.ovTableDesc;
@@ -7202,8 +7193,8 @@ async function commitDayNote(dayNum, val) {
 
 
 let activeChartType = localStorage.getItem("solaris_chart_type") || "bars";
-let showChartEarned = localStorage.getItem("solaris_chart_earned") !== "false";
-let showChartHours = localStorage.getItem("solaris_chart_hours") !== "false";
+let showChartEarned = true;
+let showChartHours = false;
 
 function setChartType(type) {
   activeChartType = type;
@@ -7284,7 +7275,7 @@ function renderBarChart() {
     col.innerHTML = `
       <div class="chart-col-val">${topValText}</div>
       <div class="chart-bars-wrap">
-        ${showChartEarned ? `<div class="chart-bar earned" style="height: ${Math.max(4, earnPct)}%" title="${fmtMoney(m.totalEarnings)}"></div>` : ""}
+        ${showChartEarned ? `<div class="chart-bar earned" style="height: ${Math.max(4, earnPct)}%; width: 22px; max-width: 22px;" title="${fmtMoney(m.totalEarnings)} • ${m.totalHoursFormatted} (${fmtNum(m.totalHoursDecimal)} h)"></div>` : ""}
         ${showChartHours ? `<div class="chart-bar hours" style="height: ${Math.max(4, hoursPct)}%" title="${m.totalHoursFormatted} (${fmtNum(m.totalHoursDecimal)} h)"></div>` : ""}
       </div>
       <div class="chart-col-label">${m.pl.slice(0, 3)}</div>
