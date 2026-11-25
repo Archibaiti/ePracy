@@ -336,6 +336,11 @@ html[data-theme="dark"][data-palette="gray"][data-vibrancy="neutral"] {
   padding: 0;
 }
 
+html {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-app);
@@ -343,6 +348,13 @@ body {
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.18s ease, color 0.18s ease;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.nav-month-short,
+.mobile-quick-bar {
+  display: none;
 }
 
 .mono {
@@ -3151,9 +3163,754 @@ html[data-motion="off"] *::after {
   cursor: pointer;
 }
 
-.disclaimer-accept-box input[type="checkbox"] {
+  .disclaimer-accept-box input[type="checkbox"] {
   margin-top: 2px;
   flex-shrink: 0;
+}
+
+/* ==========================================================================
+   MOBILE & PHONE ERGONOMICS OVERHAUL (ZERO HORIZONTAL OVERFLOW, <= 820px / <= 640px)
+   ========================================================================== */
+@media (max-width: 820px), (hover: none) {
+  .nav-floating-tooltip {
+    display: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .topbar-right {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Month pills in top mobile strip show both number (01) + short month name (Sty) */
+  .sidebar .nav-item,
+  .sidebar .nav-overview,
+  .app-layout.sidebar-collapsed .sidebar .nav-item,
+  .app-layout.sidebar-collapsed .sidebar .nav-overview {
+    width: 46px;
+    height: 42px;
+    padding: 3px 2px;
+  }
+
+  .sidebar .nav-left,
+  .app-layout.sidebar-collapsed .sidebar .nav-left {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+  }
+
+  .sidebar .nav-icon {
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .sidebar .nav-month-num,
+  .app-layout.sidebar-collapsed .sidebar .nav-month-num {
+    font-size: 12.5px;
+    line-height: 1.05;
+    width: auto;
+  }
+
+  .sidebar .nav-month-short,
+  .app-layout.sidebar-collapsed .sidebar .nav-month-short {
+    display: block !important;
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1;
+    color: #94a3b8;
+    letter-spacing: -0.01em;
+  }
+
+  .sidebar .nav-item.active .nav-month-short,
+  .sidebar .nav-item.has-hours-month .nav-month-short {
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .palette-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .palette-card {
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .month-side-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes barGrowHoriz {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (max-width: 680px) {
+  /* Transform 12-month Bar Chart into clean 12-row horizontal bars so all months fit 100% on screen */
+  .bar-chart-container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    gap: 5px;
+    padding: 6px 0 4px;
+  }
+
+  .bar-chart-container.grow .chart-bar {
+    transform-origin: left center;
+    animation-name: barGrowHoriz;
+  }
+
+  .chart-col {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px;
+    height: auto;
+    width: 100%;
+    padding: 5px 6px;
+    border-radius: 8px;
+  }
+
+  .chart-col-label {
+    order: 1;
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .chart-bars-wrap {
+    order: 2;
+    width: 100%;
+    height: 12px;
+    background: var(--bg-subtle);
+    border-radius: 999px;
+    overflow: hidden;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .chart-bar.earned {
+    width: var(--pct, 0%) !important;
+    max-width: none !important;
+    height: 100% !important;
+    min-height: 0;
+    border-radius: 999px;
+  }
+
+  .chart-col-val {
+    order: 3;
+    margin: 0;
+    font-size: 11.5px;
+    min-width: 62px;
+    text-align: right;
+  }
+
+  .chart-col-rate {
+    order: 4;
+    font-size: 10px;
+    min-width: 48px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Trend SVG scrolls smoothly inside its card without expanding viewport */
+  .trend-chart-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    height: 215px;
+    padding-bottom: 8px;
+  }
+
+  .trend-chart-container svg {
+    min-width: 560px;
+    width: 560px;
+  }
+
+  .overview-table th,
+  .overview-table td {
+    padding: 6px 6px;
+    font-size: 12px;
+  }
+
+  .overview-table .rate-status-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Two-row balanced phone header:
+     Row 1: Page Title (left) | Account + Theme + Settings (right)
+     Row 2: Year Switcher (left) | Undo/Redo + Refresh + Lang (right) */
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 9px 10px;
+    gap: 6px;
+  }
+
+  .topbar::before {
+    content: "";
+    flex-basis: 100%;
+    height: 0;
+    order: 5;
+    border-top: 1px solid var(--border-light);
+    margin: 1px 0;
+  }
+
+  .topbar-right {
+    display: contents;
+  }
+
+  .topbar-left {
+    order: 1;
+    flex: 1 1 105px;
+    min-width: 0;
+    margin-right: auto;
+  }
+
+  .page-title {
+    font-size: 16.5px;
+    line-height: 1.2;
+  }
+
+  .page-subtitle {
+    display: none !important;
+  }
+
+  #btnUserAccount {
+    order: 2;
+    max-width: 128px;
+    height: 32px;
+    padding: 4px 8px !important;
+    font-size: 12px;
+    gap: 4px !important;
+  }
+
+  #currentUserNameLabel {
+    max-width: 76px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+  }
+
+  #btnQuickTheme {
+    order: 3;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  #btnOpenSettings {
+    order: 4;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  #headerYearSwitch {
+    order: 6;
+    margin-right: auto;
+  }
+
+  .year-btn {
+    padding: 4px 8px;
+    font-size: 11.5px;
+  }
+
+  .history-controls {
+    order: 7;
+    gap: 4px;
+  }
+
+  .history-controls .btn-icon-only {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  #btnSyncNow {
+    order: 8;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  #headerLangSwitch {
+    order: 9;
+  }
+
+  .lang-btn {
+    padding: 3px 7px;
+    font-size: 11px;
+  }
+
+  .sync-status {
+    display: none !important;
+  }
+
+  /* View Container & Panels */
+  .view-container {
+    padding: 10px 8px 28px;
+    gap: 12px;
+  }
+
+  .panel {
+    padding: 12px 10px;
+    border-radius: 12px;
+  }
+
+  .panel-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .panel-title {
+    font-size: 15px;
+  }
+
+  .panel-desc {
+    font-size: 11.5px;
+    line-height: 1.35;
+  }
+
+  #mTableDesc {
+    display: none;
+  }
+
+  .color-legend {
+    gap: 5px;
+  }
+
+  .color-legend .c-pill {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+
+  /* Smart 2-column Bento KPI Grid on Phone */
+  .kpi-grid-overview,
+  .kpi-grid-month {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .kpi-grid-overview > .kpi-card:nth-child(1),
+  .kpi-grid-month > .kpi-card:nth-child(1) {
+    grid-column: 1 / -1;
+    order: 1;
+  }
+
+  .kpi-grid-overview > .kpi-card:nth-child(2),
+  .kpi-grid-month > .kpi-card:nth-child(2) {
+    order: 2;
+  }
+
+  .kpi-grid-overview > .kpi-card:nth-child(4),
+  .kpi-grid-month > .kpi-card:nth-child(4) {
+    order: 3;
+  }
+
+  .kpi-grid-overview > .kpi-card:nth-child(3),
+  .kpi-grid-month > .kpi-card:nth-child(3) {
+    grid-column: 1 / -1;
+    order: 4;
+  }
+
+  .kpi-card {
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+
+  .kpi-label,
+  .kpi-rate-title-group .kpi-label {
+    font-size: 10px;
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .kpi-value {
+    font-size: 19px;
+  }
+
+  .kpi-primary .kpi-value {
+    font-size: 23px;
+  }
+
+  .kpi-sub {
+    font-size: 11px;
+  }
+
+  .kpi-rate-top {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rate-inline-editor {
+    gap: 6px;
+  }
+
+  .rate-inline-editor label {
+    white-space: normal;
+    font-size: 11px;
+    flex: 1 1 135px;
+  }
+
+  /* Mobile Quick Shift & PDF Bar right above Days Table */
+  .mobile-quick-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 10px;
+    padding: 8px 9px;
+    border-radius: 10px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+  }
+
+  .mobile-quick-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .mobile-active-day-pill {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--accent-bright);
+  }
+
+  .mobile-pdf-shortcut {
+    padding: 4px 10px;
+    font-size: 11.5px;
+    border-radius: 7px;
+  }
+
+  .mobile-quick-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .mobile-quick-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mob-preset-pill {
+    flex-shrink: 0;
+    border: 1px solid var(--border-med);
+    background: var(--bg-panel);
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 9px;
+    border-radius: 7px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mob-preset-pill.is-starred {
+    border-color: var(--accent-bright);
+    background: var(--accent-soft);
+    color: var(--accent-soft-text);
+  }
+
+  .mob-preset-pill.mob-preset-clear {
+    font-family: 'Inter', sans-serif;
+    border-color: rgba(244, 63, 94, 0.38);
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
+  }
+
+  /* Days Table: 100% fits 360px phone screen without horizontal scroll */
+  #daysTableWrapper,
+  #daysTableWrapper.split-two-cols {
+    display: block;
+    overflow-x: hidden;
+  }
+
+  .days-table {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 12px;
+  }
+
+  .days-table th.col-actions,
+  .days-table td.cell-actions {
+    display: none !important;
+  }
+
+  .days-table th {
+    font-size: 9.5px;
+    line-height: 1.15;
+    padding: 5px 2px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .days-table td {
+    padding: 3px 2px;
+  }
+
+  .days-table th.col-day { width: 58px; }
+  .days-table th.col-from { width: 56px; min-width: 0; }
+  .days-table th.col-sep { width: 10px; padding: 2px 0; }
+  .days-table th.col-to { width: 56px; min-width: 0; }
+  .days-table th.col-hours { width: 42px; }
+  .days-table th.col-earned { width: auto; }
+  .days-table th.col-note { width: 28px; padding: 4px 1px; }
+
+  .cell-day {
+    font-size: 11px;
+    padding: 4px 2px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cell-time {
+    padding: 2px 1px !important;
+  }
+
+  /* 16px prevents iOS Safari viewport zoom-on-focus while fitting neatly inside 56px */
+  .time-input {
+    min-width: 0;
+    width: 100%;
+    font-size: 16px;
+    letter-spacing: -0.04em;
+    padding: 4px 0;
+  }
+
+  .cell-sep {
+    font-size: 11px;
+    padding: 2px 0 !important;
+  }
+
+  .cell-hours {
+    font-size: 11.5px;
+    padding: 4px 1px !important;
+  }
+
+  .cell-earned {
+    font-size: 11.5px;
+    padding: 4px 4px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cell-note {
+    padding: 2px 1px !important;
+  }
+
+  .note-icon-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* All Modals (Settings, Export PDF, Auth, Disclaimer, Note) on Phone */
+  .modal-backdrop {
+    padding: 8px !important;
+  }
+
+  .modal-window,
+  .auth-modal-window,
+  .disclaimer-modal-window,
+  .export-modal-window,
+  .note-modal-window {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92dvh !important;
+    border-radius: 14px !important;
+  }
+
+  .auth-modal-window {
+    padding: 16px 14px !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-header {
+    padding: 13px 14px !important;
+    gap: 8px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .modal-subtitle {
+    font-size: 11.5px;
+  }
+
+  .modal-body {
+    padding: 14px !important;
+    gap: 16px;
+  }
+
+  .modal-footer {
+    padding: 12px 14px !important;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .settings-sec-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .settings-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .setting-field-full {
+    grid-column: 1 / -1 !important;
+  }
+
+  .setting-select,
+  .setting-input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .segmented-control {
+    flex-wrap: wrap;
+  }
+
+  .segmented-control button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.25;
+    padding: 7px 6px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  #themeSegmented button,
+  #motionSegmented button {
+    flex: 1 1 calc(33.33% - 4px);
+  }
+
+  #expStudentSegmented button {
+    flex: 1 1 100%;
+  }
+
+  .preset-edit-row {
+    grid-template-columns: 34px minmax(0, 1fr) 14px minmax(0, 1fr) 34px;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .preset-edit-row .preset-del-btn {
+    grid-column: 5;
+    grid-row: 1;
+  }
+
+  .preset-edit-row .preset-dur-badge {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    text-align: left;
+    padding-left: 4px;
+  }
+
+  .preset-edit-row .preset-move-btns {
+    grid-column: 3 / 6;
+    grid-row: 2;
+    justify-self: end;
+    width: 76px;
+  }
+
+  .preset-time-inp {
+    font-size: 16px;
+    padding: 5px 4px;
+    min-width: 0;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.38;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .export-summary-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .export-stat-item:nth-child(3) {
+    grid-column: 1 / -1;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-light);
+  }
+
+  .export-modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .export-footer-left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .export-footer-left .btn {
+    white-space: normal;
+    text-align: center;
+    font-size: 11.5px;
+    line-height: 1.2;
+    padding: 7px 6px;
+    height: auto;
+  }
+
+  .export-footer-right {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+
+  #btnExportBoth {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .toast-container {
+    left: 10px;
+    right: 10px;
+    bottom: 12px;
+  }
+
+  .toast {
+    width: 100%;
+  }
+}
+
+@media (max-width: 440px) {
+  .palette-picker-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 </style>
@@ -3179,6 +3936,7 @@ html[data-motion="off"] *::after {
         <button class="nav-item nav-overview" id="btnOverview" onclick="selectView('overview')">
           <span class="nav-left">
             <span class="nav-icon">📊</span>
+            <span class="nav-month-short" id="navOverviewShort">Rok</span>
             <span class="nav-title" id="navOverviewText">Podsumowanie 2026</span>
           </span>
           <span class="nav-badge" id="navYearTotalBadge">0 zł</span>
@@ -3428,6 +4186,15 @@ html[data-motion="off"] *::after {
                   <span class="c-pill c-worked" id="legWorked">Przepracowane > 0</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Mobile-Only Compact Quick Shift & PDF Bar (shown <= 640px right above table) -->
+            <div class="mobile-quick-bar" id="mobileQuickPresetsBar">
+              <div class="mobile-quick-top">
+                <span class="mobile-active-day-pill" id="mobileActiveDayBadge">⚡ Dzień 1</span>
+                <button type="button" class="btn btn-sm btn-accent mobile-pdf-shortcut" onclick="openExportModal()" id="btnMobileQuickPdf">📥 PDF</button>
+              </div>
+              <div class="mobile-quick-chips" id="mobileQuickPresetsStrip"></div>
             </div>
 
             <div class="table-wrapper" id="daysTableWrapper">
@@ -3857,7 +4624,7 @@ html[data-motion="off"] *::after {
 
   <!-- Private Account Authentication, Self-Registration & Forgot Password Modal -->
   <div id="workerAuthModalBackdrop" class="modal-backdrop hidden" onclick="handleAuthBackdropClick(event)" style="z-index: 250; background: rgba(6, 10, 18, 0.78); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-    <div class="modal-window" role="dialog" aria-modal="true" style="max-width: 460px; width: 100%; padding: 24px 26px; background: var(--bg-panel, #141e30); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 18px; box-shadow: 0 28px 72px rgba(0, 0, 0, 0.82);">
+    <div class="modal-window auth-modal-window" role="dialog" aria-modal="true" style="max-width: 460px; width: 100%; padding: 24px 26px; background: var(--bg-panel, #141e30); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 18px; box-shadow: 0 28px 72px rgba(0, 0, 0, 0.82);">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.1));">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-primary, #3b9b6d), var(--accent-hover, #1f5c3f)); color: #fff; font-weight: 800; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">eP</div>
@@ -6082,6 +6849,9 @@ function renderApp() {
   const btnToggleSidebarEl = document.getElementById("btnToggleSidebar");
   if (btnToggleSidebarEl) btnToggleSidebarEl.title = t.sidebarToggleTooltip;
 
+  const navOvShort = document.getElementById("navOverviewShort");
+  if (navOvShort) navOvShort.textContent = currentLang === "ru" ? "Год" : "Rok";
+
   const navList = document.getElementById("monthsNavList");
   navList.innerHTML = "";
   appState.months.forEach((m) => {
@@ -6093,6 +6863,7 @@ function renderApp() {
     const hasEarn = m.totalEarnings > 0;
     const badgeText = hasEarn ? `${Math.round(m.totalEarnings).toLocaleString("pl-PL")} zł` : "0 zł";
     const monthTooltipName = currentLang === "pl" ? m.pl : m.ru;
+    const shortMonthStr = (currentLang === "ru" ? m.ru : m.pl).slice(0, 3);
     btn.setAttribute("data-tooltip", `${monthTooltipName} — ${badgeText}`);
     bindNavTooltipEvents(btn);
     const prevBadge = navBadgeCache[m.id];
@@ -6101,6 +6872,7 @@ function renderApp() {
     btn.innerHTML = `
       <span class="nav-left">
         <span class="nav-month-num">${String(m.id).padStart(2, "0")}</span>
+        <span class="nav-month-short">${shortMonthStr}</span>
         <span class="nav-month-label">${getSidebarMonthLabel(m)}</span>
       </span>
       <span class="nav-badge ${hasEarn ? "has-earnings" : ""}${badgeChanged ? " badge-flash" : ""}">${badgeText}</span>
@@ -6377,6 +7149,35 @@ function renderMonthView() {
   clearBtn.textContent = t.btnPresetClear;
   presetsGrid.appendChild(clearBtn);
 
+  // Render Mobile Quick Presets Strip (above Days Table on phones)
+  const mobStrip = document.getElementById("mobileQuickPresetsStrip");
+  const mobDayBadge = document.getElementById("mobileActiveDayBadge");
+  const mobPdfBtn = document.getElementById("btnMobileQuickPdf");
+  if (mobPdfBtn) {
+    mobPdfBtn.textContent = currentLang === "ru" ? "📥 Экспорт PDF" : "📥 Eksport PDF";
+  }
+  if (mobDayBadge) {
+    const dNum = activeDayNum || 1;
+    mobDayBadge.textContent = currentLang === "ru" ? `⚡ День ${dNum}` : `⚡ Dzień ${dNum}`;
+  }
+  if (mobStrip) {
+    mobStrip.innerHTML = "";
+    userSettings.shiftPresets.forEach((p) => {
+      const mBtn = document.createElement("button");
+      mBtn.type = "button";
+      mBtn.className = "mob-preset-pill" + (p.inRow ? " is-starred" : "");
+      mBtn.onclick = () => applyPresetToActiveRow(p.from, p.to);
+      mBtn.textContent = `${p.from}–${p.to}`;
+      mobStrip.appendChild(mBtn);
+    });
+    const mClr = document.createElement("button");
+    mClr.type = "button";
+    mClr.className = "mob-preset-pill mob-preset-clear";
+    mClr.onclick = () => applyPresetToActiveRow("", "");
+    mClr.textContent = currentLang === "ru" ? "✕ Очистить" : "✕ Wyczyść";
+    mobStrip.appendChild(mClr);
+  }
+
   const rowPresets = userSettings.shiftPresets.filter((p) => p.inRow);
 
   // Render Days Table (1-column or 2-column 1..15 | 16..end)
@@ -6391,6 +7192,9 @@ function renderMonthView() {
     tr.id = `dayRow_${d.day}`;
     tr.style.setProperty("--r", String(d.day));
     if (d.day === activeDayNum) tr.classList.add("active-row");
+    tr.onclick = (ev) => {
+      if (!ev.target.closest("button")) setActiveDay(d.day);
+    };
 
     const isSunday = d.weekday === 6;
     const isSaturday = d.weekday === 5;
@@ -6480,6 +7284,10 @@ function setActiveDay(dayNum) {
   document.querySelectorAll(".days-table tr.active-row").forEach((el) => el.classList.remove("active-row"));
   const row = document.getElementById(`dayRow_${dayNum}`);
   if (row) row.classList.add("active-row");
+  const mobDayBadge = document.getElementById("mobileActiveDayBadge");
+  if (mobDayBadge) {
+    mobDayBadge.textContent = currentLang === "ru" ? `⚡ День ${dayNum}` : `⚡ Dzień ${dayNum}`;
+  }
 }
 
 function handleTimeKeydown(e, dayNum, field) {
@@ -7275,7 +8083,7 @@ function renderBarChart() {
     col.innerHTML = `
       <div class="chart-col-val">${topValText}</div>
       <div class="chart-bars-wrap">
-        ${showChartEarned ? `<div class="chart-bar earned" style="height: ${Math.max(4, earnPct)}%; width: 22px; max-width: 22px;" title="${fmtMoney(m.totalEarnings)} • ${m.totalHoursFormatted} (${fmtNum(m.totalHoursDecimal)} h)"></div>` : ""}
+        ${showChartEarned ? `<div class="chart-bar earned" style="--pct: ${m.totalEarnings > 0 ? Math.max(4, earnPct) : 0}%; height: ${Math.max(4, earnPct)}%; width: 22px; max-width: 22px;" title="${fmtMoney(m.totalEarnings)} • ${m.totalHoursFormatted} (${fmtNum(m.totalHoursDecimal)} h)"></div>` : ""}
         ${showChartHours ? `<div class="chart-bar hours" style="height: ${Math.max(4, hoursPct)}%" title="${m.totalHoursFormatted} (${fmtNum(m.totalHoursDecimal)} h)"></div>` : ""}
       </div>
       <div class="chart-col-label">${m.pl.slice(0, 3)}</div>
