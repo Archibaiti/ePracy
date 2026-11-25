@@ -352,8 +352,7 @@ body {
   overflow-x: clip;
 }
 
-.nav-month-short,
-.mobile-quick-bar {
+.nav-month-short {
   display: none;
 }
 
@@ -3564,78 +3563,6 @@ html[data-motion="off"] *::after {
     flex: 1 1 135px;
   }
 
-  /* Mobile Quick Shift & PDF Bar right above Days Table */
-  .mobile-quick-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    margin-bottom: 10px;
-    padding: 8px 9px;
-    border-radius: 10px;
-    background: var(--bg-subtle);
-    border: 1px solid var(--border-light);
-  }
-
-  .mobile-quick-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .mobile-active-day-pill {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--accent-bright);
-  }
-
-  .mobile-pdf-shortcut {
-    padding: 4px 10px;
-    font-size: 11.5px;
-    border-radius: 7px;
-  }
-
-  .mobile-quick-chips {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-  }
-
-  .mobile-quick-chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .mob-preset-pill {
-    flex-shrink: 0;
-    border: 1px solid var(--border-med);
-    background: var(--bg-panel);
-    color: var(--text-main);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    font-weight: 600;
-    padding: 5px 9px;
-    border-radius: 7px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .mob-preset-pill.is-starred {
-    border-color: var(--accent-bright);
-    background: var(--accent-soft);
-    color: var(--accent-soft-text);
-  }
-
-  .mob-preset-pill.mob-preset-clear {
-    font-family: 'Inter', sans-serif;
-    border-color: rgba(244, 63, 94, 0.38);
-    background: rgba(244, 63, 94, 0.1);
-    color: #f43f5e;
-  }
-
   /* Days Table: 100% fits phone screen with compact 2-preset quick actions */
   .days-panel {
     padding: 12px 6px;
@@ -4232,15 +4159,6 @@ html[data-motion="off"] *::after {
                   <span class="c-pill c-worked" id="legWorked">Przepracowane > 0</span>
                 </div>
               </div>
-            </div>
-
-            <!-- Mobile-Only Compact Quick Shift & PDF Bar (shown <= 640px right above table) -->
-            <div class="mobile-quick-bar" id="mobileQuickPresetsBar">
-              <div class="mobile-quick-top">
-                <span class="mobile-active-day-pill" id="mobileActiveDayBadge">⚡ Dzień 1</span>
-                <button type="button" class="btn btn-sm btn-accent mobile-pdf-shortcut" onclick="openExportModal()" id="btnMobileQuickPdf">📥 PDF</button>
-              </div>
-              <div class="mobile-quick-chips" id="mobileQuickPresetsStrip"></div>
             </div>
 
             <div class="table-wrapper" id="daysTableWrapper">
@@ -7195,35 +7113,6 @@ function renderMonthView() {
   clearBtn.textContent = t.btnPresetClear;
   presetsGrid.appendChild(clearBtn);
 
-  // Render Mobile Quick Presets Strip (above Days Table on phones)
-  const mobStrip = document.getElementById("mobileQuickPresetsStrip");
-  const mobDayBadge = document.getElementById("mobileActiveDayBadge");
-  const mobPdfBtn = document.getElementById("btnMobileQuickPdf");
-  if (mobPdfBtn) {
-    mobPdfBtn.textContent = currentLang === "ru" ? "📥 Экспорт PDF" : "📥 Eksport PDF";
-  }
-  if (mobDayBadge) {
-    const dNum = activeDayNum || 1;
-    mobDayBadge.textContent = currentLang === "ru" ? `⚡ День ${dNum}` : `⚡ Dzień ${dNum}`;
-  }
-  if (mobStrip) {
-    mobStrip.innerHTML = "";
-    userSettings.shiftPresets.forEach((p) => {
-      const mBtn = document.createElement("button");
-      mBtn.type = "button";
-      mBtn.className = "mob-preset-pill" + (p.inRow ? " is-starred" : "");
-      mBtn.onclick = () => applyPresetToActiveRow(p.from, p.to);
-      mBtn.textContent = `${p.from}–${p.to}`;
-      mobStrip.appendChild(mBtn);
-    });
-    const mClr = document.createElement("button");
-    mClr.type = "button";
-    mClr.className = "mob-preset-pill mob-preset-clear";
-    mClr.onclick = () => applyPresetToActiveRow("", "");
-    mClr.textContent = currentLang === "ru" ? "✕ Очистить" : "✕ Wyczyść";
-    mobStrip.appendChild(mClr);
-  }
-
   const rowPresets = userSettings.shiftPresets.filter((p) => p.inRow);
 
   // Render Days Table (1-column or 2-column 1..15 | 16..end)
@@ -7330,10 +7219,6 @@ function setActiveDay(dayNum) {
   document.querySelectorAll(".days-table tr.active-row").forEach((el) => el.classList.remove("active-row"));
   const row = document.getElementById(`dayRow_${dayNum}`);
   if (row) row.classList.add("active-row");
-  const mobDayBadge = document.getElementById("mobileActiveDayBadge");
-  if (mobDayBadge) {
-    mobDayBadge.textContent = currentLang === "ru" ? `⚡ День ${dayNum}` : `⚡ Dzień ${dayNum}`;
-  }
 }
 
 function handleTimeKeydown(e, dayNum, field) {
