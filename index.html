@@ -3636,7 +3636,11 @@ html[data-motion="off"] *::after {
     color: #f43f5e;
   }
 
-  /* Days Table: 100% fits 360px phone screen without horizontal scroll */
+  /* Days Table: 100% fits phone screen with compact 2-preset quick actions */
+  .days-panel {
+    padding: 12px 6px;
+  }
+
   #daysTableWrapper,
   #daysTableWrapper.split-two-cols {
     display: block;
@@ -3646,36 +3650,43 @@ html[data-motion="off"] *::after {
   .days-table {
     table-layout: fixed;
     width: 100%;
-    font-size: 12px;
-  }
-
-  .days-table th.col-actions,
-  .days-table td.cell-actions {
-    display: none !important;
+    font-size: 11.5px;
   }
 
   .days-table th {
-    font-size: 9.5px;
+    font-size: 9px;
     line-height: 1.15;
-    padding: 5px 2px;
+    padding: 5px 1px;
     word-break: break-word;
     overflow-wrap: anywhere;
   }
 
   .days-table td {
-    padding: 3px 2px;
+    padding: 3px 1px;
   }
 
-  .days-table th.col-day { width: 58px; }
-  .days-table th.col-from { width: 56px; min-width: 0; }
-  .days-table th.col-sep { width: 10px; padding: 2px 0; }
-  .days-table th.col-to { width: 56px; min-width: 0; }
-  .days-table th.col-hours { width: 42px; }
+  .days-table th.col-day { width: 44px; }
+  .days-table th.col-from { width: 43px; min-width: 0; }
+  .days-table th.col-sep { width: 7px; padding: 2px 0; }
+  .days-table th.col-to { width: 43px; min-width: 0; }
+  .days-table th.col-hours { width: 33px; }
   .days-table th.col-earned { width: auto; }
-  .days-table th.col-note { width: 28px; padding: 4px 1px; }
+  .days-table th.col-note { width: 21px; padding: 4px 1px; }
+  .days-table th.col-actions {
+    width: 80px;
+    font-size: 0;
+    color: transparent;
+    padding: 4px 1px;
+  }
+
+  .days-table th.col-actions::after {
+    content: "⚡";
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
 
   .cell-day {
-    font-size: 11px;
+    font-size: 10px;
     padding: 4px 2px !important;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -3685,30 +3696,30 @@ html[data-motion="off"] *::after {
     padding: 2px 1px !important;
   }
 
-  /* 16px prevents iOS Safari viewport zoom-on-focus while fitting neatly inside 56px */
   .time-input {
     min-width: 0;
     width: 100%;
-    font-size: 16px;
-    letter-spacing: -0.04em;
+    font-size: 12.5px;
+    letter-spacing: -0.03em;
     padding: 4px 0;
   }
 
   .cell-sep {
-    font-size: 11px;
+    font-size: 10px;
     padding: 2px 0 !important;
   }
 
   .cell-hours {
-    font-size: 11.5px;
+    font-size: 10.5px;
     padding: 4px 1px !important;
   }
 
   .cell-earned {
-    font-size: 11.5px;
-    padding: 4px 4px !important;
+    font-size: 10.5px;
+    padding: 4px 3px !important;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .cell-note {
@@ -3716,8 +3727,43 @@ html[data-motion="off"] *::after {
   }
 
   .note-icon-btn {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .note-icon-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .cell-actions {
+    padding: 2px 2px !important;
+  }
+
+  .cell-actions .row-action-btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+
+  .cell-actions .mini-btn {
+    padding: 2px 2.5px;
+    font-size: 9px;
+    line-height: 1.15;
+    border-radius: 4px;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .cell-actions .mini-btn.clear-btn {
+    padding: 2px 3.5px;
+  }
+
+  /* Limit inline quick-select buttons in table rows to 2 templates + clear on phones */
+  .days-table td.cell-actions .row-action-btns .mini-btn:not(.clear-btn):nth-of-type(n+3) {
+    display: none;
   }
 
   /* All Modals (Settings, Export PDF, Auth, Disclaimer, Note) on Phone */
